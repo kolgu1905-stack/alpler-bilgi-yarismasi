@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Alpler Bilgi Yarışması</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--gold:#C9A84C;--dark:#0b2630;--surface:#112830;--surface2:#1a3540;--text:#F0EDE6;--muted:#8aacb4;--border:#1e4555;--error:#E74C3C;}
+    html,body{background:var(--dark);color:var(--text);font-family:'Source Sans 3',sans-serif;min-height:100vh;}
+    .wrap{max-width:520px;margin:0 auto;padding:1.25rem 1rem 4rem;}
+    .header{text-align:center;padding-top:1.5rem;margin-bottom:1.75rem;}
+    .logo-img{width:100px;height:100px;object-fit:contain;margin:0 auto 0.75rem;display:block;}
+    h1{font-family:'Playfair Display',serif;font-size:clamp(1.4rem,5vw,1.9rem);color:var(--gold);margin-bottom:0.25rem;}
+    .subtitle{font-size:0.78rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;}
+    .card{background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:0.9rem;}
+    .card-title{font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:0.9rem;display:flex;align-items:center;gap:7px;}
+    .field-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+    .field-wrap{display:flex;flex-direction:column;}
+    label{font-size:0.78rem;color:var(--muted);margin-bottom:4px;}
+    input[type=text]{width:100%;background:var(--surface2);border:0.5px solid var(--border);color:var(--text);border-radius:9px;padding:11px 13px;font-size:1rem;font-family:'Source Sans 3',sans-serif;outline:none;transition:border 0.2s;-webkit-appearance:none;}
+    input[type=text]:focus{border-color:var(--gold);}
+    input[type=text].err-field{border-color:var(--error);}
+    .field-err{font-size:0.73rem;color:var(--error);margin-top:3px;display:none;}
+    .field-err.show{display:block;}
+    .sinif-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+    .sinif-btn{background:var(--surface2);border:0.5px solid var(--border);color:var(--muted);border-radius:9px;padding:12px 6px;font-size:0.9rem;cursor:pointer;text-align:center;transition:all 0.2s;font-family:'Source Sans 3',sans-serif;-webkit-tap-highlight-color:transparent;}
+    .sinif-btn:hover{border-color:var(--gold);color:var(--text);}
+    .sinif-btn.selected{border-color:var(--gold);background:rgba(201,168,76,0.12);color:var(--gold);}
+    .group-opts{display:grid;gap:7px;margin-bottom:10px;min-height:44px;}
+    .group-item{background:var(--surface2);border:0.5px solid var(--border);border-radius:9px;padding:11px 13px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:border 0.2s;-webkit-tap-highlight-color:transparent;}
+    .group-item:hover:not(.full){border-color:var(--gold);}
+    .group-item.sel{border-color:var(--gold);background:rgba(201,168,76,0.08);}
+    .group-item.full{opacity:0.38;cursor:not-allowed;}
+    .dot{width:7px;height:7px;border-radius:50%;background:var(--border);display:inline-block;margin-right:2px;}
+    .dot.on{background:var(--gold);}
+    .new-row{display:flex;gap:8px;}
+    .new-row input{flex:1;min-width:0;}
+    .btn-add{background:transparent;border:0.5px solid var(--gold);color:var(--gold);border-radius:9px;padding:11px 13px;font-size:0.85rem;cursor:pointer;white-space:nowrap;font-family:'Source Sans 3',sans-serif;-webkit-tap-highlight-color:transparent;transition:background 0.2s;}
+    .btn-add:hover{background:rgba(201,168,76,0.1);}
+    .btn-add:disabled{opacity:0.35;cursor:not-allowed;}
+    .info-box{background:rgba(201,168,76,0.06);border:0.5px solid rgba(201,168,76,0.2);border-radius:9px;padding:9px 13px;font-size:0.8rem;color:var(--muted);margin-top:9px;}
+    .limit-badge{font-size:0.71rem;color:var(--muted);text-align:right;margin-top:5px;}
+    .limit-badge span{color:var(--gold);}
+    .btn-submit{width:100%;background:var(--gold);color:#1A1200;font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;border:none;border-radius:11px;padding:15px;cursor:pointer;margin-top:0.5rem;-webkit-tap-highlight-color:transparent;transition:opacity 0.2s;}
+    .btn-submit:hover{opacity:0.88;}
+    .btn-submit:disabled{opacity:0.4;cursor:not-allowed;}
+    .err-msg{background:rgba(231,76,60,0.1);border:0.5px solid var(--error);color:var(--error);border-radius:9px;padding:11px 14px;font-size:0.85rem;margin-top:0.75rem;display:none;line-height:1.5;}
+    .err-msg.show{display:block;}
+    .loading-line{font-size:0.8rem;color:var(--muted);padding:8px 0;display:flex;align-items:center;gap:8px;}
+    .spinner-sm{display:inline-block;width:12px;height:12px;border:2px solid var(--muted);border-top-color:transparent;border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;}
+    .spinner{display:inline-block;width:14px;height:14px;border:2px solid #1A1200;border-top-color:transparent;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* Success */
+    .success-wrap{display:none;max-width:520px;margin:0 auto;padding:1.25rem 1rem 4rem;}
+    .success-wrap.show{display:block;}
+    .success-header{text-align:center;padding:1.5rem 0 1.25rem;}
+    .success-icon{font-size:4rem;display:block;margin-bottom:0.75rem;}
+    .success-title{font-family:'Playfair Display',serif;font-size:clamp(1.5rem,5vw,1.8rem);color:var(--gold);margin-bottom:0.35rem;}
+    .success-sub{font-size:0.85rem;color:var(--muted);}
+    .info-card{background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:0.9rem;}
+    .info-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:0.9rem;}
+    .info-row:last-child{border-bottom:none;}
+    .info-row .lbl{color:var(--muted);font-size:0.75rem;}
+    .info-row .val{color:var(--text);font-weight:500;text-align:right;}
+    .team-card{background:var(--surface2);border:0.5px solid var(--border);border-radius:10px;padding:11px 14px;margin-bottom:8px;}
+    .team-card.my-team{border-color:var(--gold);}
+    .team-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
+    .team-name{font-size:0.92rem;font-weight:500;color:var(--text);}
+    .team-badge{font-size:0.7rem;padding:2px 9px;border-radius:20px;background:rgba(201,168,76,0.12);color:var(--gold);border:0.5px solid rgba(201,168,76,0.3);}
+    .team-badge.full{background:rgba(231,76,60,0.1);color:#e74c3c;border-color:rgba(231,76,60,0.3);}
+    .member-list{display:flex;flex-direction:column;gap:4px;}
+    .member{font-size:0.82rem;color:var(--muted);display:flex;align-items:center;gap:7px;}
+    .member::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0;}
+    .member.empty::before{background:var(--border);}
+    .member.empty{color:#3a5560;font-style:italic;}
+    .my-badge{background:rgba(201,168,76,0.15);color:var(--gold);font-size:0.65rem;padding:1px 7px;border-radius:10px;border:0.5px solid var(--gold);margin-left:5px;}
+  </style>
+</head>
+<body>
+
+<!-- FORM -->
+<div class="wrap" id="formWrap">
+  <div class="header">
+    <!-- Logo: alpler-logo.png adıyla aynı klasöre koy -->
+    <img class="logo-img" src="alpler-logo.png" alt="Alpler" onerror="this.style.display='none'"/>
+    <h1>Alpler Bilgi Yarışması</h1>
+    <p class="subtitle">Katılım Formu</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">👤 Kişisel Bilgiler</div>
+    <div class="field-row">
+      <div class="field-wrap">
+        <label for="ad">Ad</label>
+        <input type="text" id="ad" placeholder="Adınız" autocomplete="given-name" oninput="checkWord(this,'adErr','Yalnızca adınızı girin.')"/>
+        <span class="field-err" id="adErr"></span>
+      </div>
+      <div class="field-wrap">
+        <label for="soyad">Soyad</label>
+        <input type="text" id="soyad" placeholder="Soyadınız" autocomplete="family-name" oninput="checkWord(this,'soyadErr','Yalnızca soyadınızı girin.')"/>
+        <span class="field-err" id="soyadErr"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🎓 Sınıf Seçimi</div>
+    <div class="sinif-grid">
+      <button class="sinif-btn" onclick="selectSinif(this,'9. Sınıf')">9. Sınıf</button>
+      <button class="sinif-btn" onclick="selectSinif(this,'10. Sınıf')">10. Sınıf</button>
+      <button class="sinif-btn" onclick="selectSinif(this,'11. Sınıf')">11. Sınıf</button>
+      <button class="sinif-btn" onclick="selectSinif(this,'Üniversite Hazırlık')">Üniversite Hazırlık</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">👥 Grup Seçimi</div>
+    <p style="font-size:0.8rem;color:var(--muted);margin-bottom:11px;">Mevcut bir gruba katıl veya yeni grup oluştur. Her grupta en fazla 3 kişi.</p>
+    <div class="group-opts" id="gList">
+      <div class="loading-line"><span class="spinner-sm"></span>Gruplar yükleniyor...</div>
+    </div>
+    <div class="new-row">
+      <input type="text" id="newG" placeholder="Yeni grup adı..." maxlength="30"/>
+      <button class="btn-add" id="addBtn" onclick="addGroup()">+ Yeni Grup</button>
+    </div>
+    <div class="limit-badge">Gruplar: <span id="gCount">0</span>/9</div>
+    <div class="info-box">Seçilen grup: <strong id="selLabel" style="color:var(--gold)">—</strong></div>
+  </div>
+
+  <button class="btn-submit" id="subBtn" onclick="submitForm()">Kayıt Ol</button>
+  <div class="err-msg" id="errMsg"></div>
+</div>
+
+<!-- ONAY EKRANI -->
+<div class="success-wrap" id="successWrap">
+  <div class="success-header">
+    <img class="logo-img" src="alpler-logo.png" alt="Alpler" onerror="this.style.display='none'"/>
+    <span class="success-icon">🏆</span>
+    <div class="success-title">Kaydınız Gerçekleşmiştir!</div>
+    <p class="success-sub">Bilgi yarışmasında başarılar dileriz.</p>
+  </div>
+  <div class="info-card">
+    <div class="card-title" style="margin-bottom:0.75rem;">📋 Kayıt Bilgileriniz</div>
+    <div class="info-row"><span class="lbl">Ad Soyad</span><span class="val" id="sAdSoyad">—</span></div>
+    <div class="info-row"><span class="lbl">Sınıf</span><span class="val" id="sSinif">—</span></div>
+    <div class="info-row"><span class="lbl">Grup</span><span class="val" id="sGrup">—</span></div>
+  </div>
+  <div class="info-card">
+    <div class="card-title" style="margin-bottom:0.75rem;">🏅 Tüm Gruplar</div>
+    <div id="teamList"></div>
+  </div>
+</div>
+
+<script>
+  // =============================================
+  // BURAYA KENDİ APPS SCRIPT URL'NİZİ YAZIN
+  // =============================================
+  const SCRIPT = 'https://script.google.com/macros/s/AKfycbwNPw7G7wTu88IbI9U4Uda21Urlr4QvwiJlXKGtjk3rS1zIOe2ZczvBuceC6qbkJJw53w/exec';
+
+  const SK = 'alpler_github_v1';
+  const MAX = 9;
+  let groups = {};
+  let selGroup = null, selSinif = null;
+
+  // Sayfa açıldığında mevcut grupları Sheets'ten çek
+  async function fetchGroups() {
+    try {
+      const res = await fetch(SCRIPT + '?action=list&cb=' + Date.now());
+      const data = await res.json();
+      if (data && data.groups) groups = data.groups;
+    } catch (e) {
+      console.log('Gruplar yüklenemedi:', e);
+    }
+    renderGroups();
+  }
+
+  function renderGroups() {
+    const el = document.getElementById('gList');
+    el.innerHTML = '';
+    const names = Object.keys(groups);
+    if (names.length === 0) {
+      el.innerHTML = '<div style="font-size:0.8rem;color:var(--muted);padding:6px 0;">Henüz grup yok. Aşağıdan yeni grup oluştur.</div>';
+    } else {
+      names.forEach(name => {
+        const members = groups[name] || [];
+        const n = members.length;
+        const full = n >= 3;
+        const chosen = selGroup === name;
+        const d = document.createElement('div');
+        d.className = 'group-item' + (full ? ' full' : '') + (chosen ? ' sel' : '');
+        const dots = [0,1,2].map(j => `<span class="dot${j < n ? ' on' : ''}"></span>`).join('');
+        d.innerHTML = `<span style="font-size:.9rem">${name}</span><span style="display:flex;align-items:center;gap:4px;font-size:.75rem;color:var(--muted)">${dots}&nbsp;${n}/3</span>`;
+        if (!full) d.onclick = () => { selGroup = name; document.getElementById('selLabel').textContent = name; renderGroups(); };
+        el.appendChild(d);
+      });
+    }
+    const total = Object.keys(groups).length;
+    document.getElementById('gCount').textContent = total;
+    document.getElementById('addBtn').disabled = total >= MAX;
+  }
+
+  function checkWord(inp, errId, msg) {
+    const v = inp.value.trim();
+    const err = document.getElementById(errId);
+    if (v.includes(' ')) { inp.classList.add('err-field'); err.textContent = msg; err.classList.add('show'); }
+    else { inp.classList.remove('err-field'); err.classList.remove('show'); }
+  }
+
+  function selectSinif(btn, val) {
+    document.querySelectorAll('.sinif-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selSinif = val;
+  }
+
+  function addGroup() {
+    const total = Object.keys(groups).length;
+    if (total >= MAX) { showErr('En fazla 9 grup oluşturulabilir.'); return; }
+    const inp = document.getElementById('newG');
+    const name = inp.value.trim();
+    if (!name) { inp.focus(); return; }
+    const exists = Object.keys(groups).find(g => g.toLowerCase() === name.toLowerCase());
+    if (exists) { showErr('Bu isimde bir grup zaten var!'); return; }
+    groups[name] = [];
+    selGroup = name;
+    document.getElementById('selLabel').textContent = name;
+    inp.value = '';
+    renderGroups();
+    hideErr();
+  }
+
+  function renderTeams(myName, myGrup) {
+    const el = document.getElementById('teamList');
+    el.innerHTML = '';
+    const names = Object.keys(groups);
+    if (names.length === 0) { el.innerHTML = '<p style="font-size:.82rem;color:var(--muted)">Henüz grup yok.</p>'; return; }
+    names.forEach(name => {
+      const members = groups[name] || [];
+      const n = members.length;
+      const isMyTeam = name === myGrup;
+      const div = document.createElement('div');
+      div.className = 'team-card' + (isMyTeam ? ' my-team' : '');
+      const badgeTxt = n >= 3 ? 'Dolu' : `${n}/3 kişi`;
+      const badgeCls = n >= 3 ? 'full' : '';
+      let mHtml = '';
+      for (let j = 0; j < 3; j++) {
+        if (j < members.length) {
+          const isMe = members[j] === myName;
+          mHtml += `<div class="member">${members[j]}${isMe ? '<span class="my-badge">Sen</span>' : ''}</div>`;
+        } else {
+          mHtml += `<div class="member empty">Boş slot</div>`;
+        }
+      }
+      div.innerHTML = `<div class="team-header"><span class="team-name">${name}${isMyTeam ? ' 🏅' : ''}</span><span class="team-badge ${badgeCls}">${badgeTxt}</span></div><div class="member-list">${mHtml}</div>`;
+      el.appendChild(div);
+    });
+  }
+
+  async function submitForm() {
+    hideErr();
+    if (localStorage.getItem(SK)) { showErr('Bu cihazdan daha önce kayıt yapılmış. Her kişi yalnızca 1 kez form gönderebilir.'); return; }
+    const ad = document.getElementById('ad').value.trim();
+    const soyad = document.getElementById('soyad').value.trim();
+    if (!ad || !soyad) { showErr('Lütfen ad ve soyadınızı girin.'); return; }
+    if (ad.includes(' ')) { showErr('Ad alanına yalnızca adınızı yazın.'); return; }
+    if (soyad.includes(' ')) { showErr('Soyad alanına yalnızca soyadınızı yazın.'); return; }
+    if (!selSinif) { showErr('Lütfen sınıfınızı seçin.'); return; }
+    if (!selGroup) { showErr('Lütfen bir grup seçin veya yeni grup oluşturun.'); return; }
+
+    const fullName = ad + ' ' + soyad;
+    const btn = document.getElementById('subBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Kaydediliyor...';
+
+    try {
+      await fetch(`${SCRIPT}?ad=${encodeURIComponent(ad)}&soyad=${encodeURIComponent(soyad)}&sinif=${encodeURIComponent(selSinif)}&grup=${encodeURIComponent(selGroup)}`);
+    } catch (e) { }
+
+    if (!groups[selGroup]) groups[selGroup] = [];
+    groups[selGroup].push(fullName);
+    localStorage.setItem(SK, '1');
+    document.getElementById('sAdSoyad').textContent = fullName;
+    document.getElementById('sSinif').textContent = selSinif;
+    document.getElementById('sGrup').textContent = selGroup;
+    renderTeams(fullName, selGroup);
+    document.getElementById('formWrap').style.display = 'none';
+    document.getElementById('successWrap').classList.add('show');
+    window.scrollTo(0, 0);
+    btn.disabled = false;
+    btn.textContent = 'Kayıt Ol';
+  }
+
+  function showErr(t) { const el = document.getElementById('errMsg'); el.textContent = t; el.classList.add('show'); }
+  function hideErr() { document.getElementById('errMsg').classList.remove('show'); }
+
+  fetchGroups();
+</script>
+</body>
+</html>
